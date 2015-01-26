@@ -58,23 +58,39 @@ class MiracBroker : public wfd::Peer::Delegate
         virtual void on_connection_failure(ConnectionFailure failure) {};
 
     private:
-        static gboolean send_cb (gint fd, GIOCondition condition, gpointer data_ptr);
-        static gboolean receive_cb (gint fd, GIOCondition condition, gpointer data_ptr);
-        static gboolean listen_cb (gint fd, GIOCondition condition, gpointer data_ptr);
-        static gboolean connect_cb (gint fd, GIOCondition condition, gpointer data_ptr);
+        struct SourceCallbackData {
+            SourceCallbackData (MiracBroker *new_broker)
+              : broker(new_broker), source(0) {}
+            MiracBroker *broker;
+            uint source;
+        };
+
+        static gboolean network_send_cb (gint fd, GIOCondition condition, gpointer data_ptr);
+        static gboolean network_listen_cb (gint fd, GIOCondition condition, gpointer data_ptr);
+        static gboolean network_connect_cb (gint fd, GIOCondition condition, gpointer data_ptr);
+        static gboolean connection_send_cb (gint fd, GIOCondition condition, gpointer data_ptr);
+        static gboolean connection_receive_cb (gint fd, GIOCondition condition, gpointer data_ptr);
         static gboolean try_connect(gpointer data_ptr);
 
-        gboolean send_cb (gint fd, GIOCondition condition);
-        gboolean receive_cb (gint fd, GIOCondition condition);
-        gboolean listen_cb (gint fd, GIOCondition condition);
-        gboolean connect_cb (gint fd, GIOCondition condition);
+        gboolean network_send_cb (gint fd, GIOCondition condition, SourceCallbackData *data);
+        gboolean network_listen_cb (gint fd, GIOCondition condition, SourceCallbackData *data);
+        gboolean network_connect_cb (gint fd, GIOCondition condition, SourceCallbackData *data);
+        gboolean connection_send_cb (gint fd, GIOCondition condition, SourceCallbackData *data);
+        gboolean connection_receive_cb (gint fd, GIOCondition condition, SourceCallbackData *data);
         void try_connect();
+
+        void reset_network(MiracNetwork* connection);
+        void reset_connection(MiracNetwork* connection);
 
         void handle_body(const std::string msg);
         void handle_header(const std::string msg);
 
         std::unique_ptr<MiracNetwork> network_;
+        std::map<uint,std::unique_ptr<SourceCallbackData>>network_sources_;
+
         std::unique_ptr<MiracNetwork> connection_;
+        std::map<uint,std::unique_ptr<SourceCallbackData>>connection_sources_;
+
         std::vector<uint> timers_;
 
         std::string peer_address_;
