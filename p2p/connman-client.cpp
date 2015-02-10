@@ -184,7 +184,7 @@ void Client::unregister_peer_service ()
 
     g_dbus_proxy_call (proxy_,
                        "UnregisterPeerService",
-                       g_variant_new ("(a{sv}b)", &builder, TRUE),
+                       g_variant_new ("(a{sv})", &builder),
                        G_DBUS_CALL_FLAGS_NONE,
                        -1,
                        NULL,
