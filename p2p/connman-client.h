@@ -47,6 +47,7 @@ class Client {
 
         P2P::InformationElement& information_element() const;
         void set_information_element(P2P::InformationElement *ie);
+        void set_peer_service_available (bool available);
 
         void set_observer(Observer* observer) {
             observer_ = observer;

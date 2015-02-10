@@ -292,6 +292,15 @@ void Client::set_information_element(P2P::InformationElement *ie)
     register_peer_service();
 }
 
+void Client::set_peer_service_available (bool available)
+{
+    g_return_if_fail (ie_);
+
+    unregister_peer_service();
+    ie_->set_session_availability (available);
+    register_peer_service();
+}
+
 void Client::scan()
 {
     g_dbus_proxy_call (technology_proxy_,

@@ -43,6 +43,8 @@ class SinkApp: public P2P::Client::Observer, public P2P::Peer::Observer {
   void on_initialized(P2P::Peer *peer) override {};
 
  private:
+  void set_peer(P2P::Peer *peer);
+
   std::unique_ptr<P2P::Client> p2p_client_;
   std::unique_ptr<Sink> sink_;
   P2P::Peer *peer_;

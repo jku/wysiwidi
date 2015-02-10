@@ -151,6 +151,9 @@ class InformationElement {
     const DeviceType get_device_type() const;
     const int get_rtsp_port() const;
 
+    bool get_session_availability () const;
+    void set_session_availability (bool availability);
+
     std::unique_ptr<InformationElementArray> serialize () const;
     std::string to_string() const;
 

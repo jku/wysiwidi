@@ -57,7 +57,7 @@ void SourceApp::on_initialized(P2P::Peer *peer)
 
 void SourceApp::scan()
 {
-    std::cout << "* Now scanning for peers..." << std::endl;
+    std::cout << "* Now scanning for sinks..." << std::endl;
     p2p_client_->scan();
 }
 
@@ -70,15 +70,19 @@ bool SourceApp::connect(uint peer_index)
     }
 
     it->second->connect ();
+    p2p_client_->set_peer_service_available (false);
+
     return true;
 }
 
 void SourceApp::on_availability_changed(P2P::Peer *peer)
 {
-    if (!peer->is_available())
-        return;
-
-    std::cout << "* Connected to " << peer->remote_host()  << std::endl;
+    if (!peer->is_available()) {
+        std::cout << "* Sink " << peer->remote_host() << " is no longer available."  << std::endl;
+        p2p_client_->set_peer_service_available (true);
+    } else {
+        std::cout << "* Sink " << peer->remote_host() << " is now available, waiting for RTSP connection." << std::endl;
+    }
 }
 
 SourceApp::SourceApp(int port) :

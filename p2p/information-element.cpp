@@ -137,6 +137,26 @@ const int InformationElement::get_rtsp_port() const
     return dev_info->session_management_control_port;
 }
 
+bool InformationElement::get_session_availability () const
+{
+    auto it = subelements_.find (DEVICE_INFORMATION);
+    if (it == subelements_.end())
+       return false;
+
+    auto dev_info = (P2P::DeviceInformationSubelement*)(*it).second;
+    return dev_info->field1.session_availability;
+}
+
+void InformationElement::set_session_availability (bool availability)
+{
+    auto it = subelements_.find (DEVICE_INFORMATION);
+    if (it == subelements_.end())
+       return;
+
+    auto dev_info = (P2P::DeviceInformationSubelement*)(*it).second;
+    dev_info->field1.session_availability = availability ? 1 : 0;
+}
+
 std::unique_ptr<InformationElementArray> InformationElement::serialize () const
 {
     uint8_t pos = 0;
