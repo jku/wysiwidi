@@ -148,15 +148,15 @@ void Client::register_peer_service ()
 
     /* HACK: Connman should figure out the "master" boolean on its own but it does not.
      * We need to do it here with InformationElement for now... */
-    P2P::InformationElement ie(array_);
-    bool is_master = (ie.get_device_type() != P2P::SOURCE);
+    bool is_master = (ie_->get_device_type() != P2P::SOURCE);
+    auto array = ie_->serialize();
 
     g_variant_builder_init (&builder, G_VARIANT_TYPE("a{sv}"));
     g_variant_builder_add (&builder, "{sv}",
                            "WiFiDisplayIEs",
                            g_variant_new_fixed_array (G_VARIANT_TYPE_BYTE,
-                                                      array_->bytes,
-                                                      array_->length,
+                                                      array->bytes,
+                                                      array->length,
                                                       1));
 
     g_dbus_proxy_call (proxy_,
@@ -172,12 +172,14 @@ void Client::register_peer_service ()
 void Client::unregister_peer_service ()
 {
     GVariantBuilder builder;
+    auto array = ie_->serialize();
+
     g_variant_builder_init (&builder, G_VARIANT_TYPE("a{sv}"));
     g_variant_builder_add (&builder, "{sv}",
                            "WiFiDisplayIEs",
                            g_variant_new_fixed_array (G_VARIANT_TYPE_BYTE,
-                                                      array_->bytes,
-                                                      array_->length,
+                                                      array->bytes,
+                                                      array->length,
                                                       1));
 
     g_dbus_proxy_call (proxy_,
@@ -238,14 +240,11 @@ void Client::technology_proxy_cb (GAsyncResult *result)
         observer_->on_initialized(this);
 }
 
-Client::Client(std::unique_ptr<P2P::InformationElementArray> &take_array):
-    Client(take_array, NULL) {}
-
-Client::Client(std::unique_ptr<P2P::InformationElementArray> &take_array, Observer *observer):
+Client::Client(P2P::InformationElement *ie, Observer *observer):
     proxy_(NULL),
-    observer_(observer),
-    array_(std::move(take_array))
+    observer_(observer)
 {
+    ie_.reset(ie);
     g_dbus_proxy_new_for_bus (G_BUS_TYPE_SYSTEM,
                               G_DBUS_PROXY_FLAGS_NONE,
                               NULL,
@@ -279,10 +278,17 @@ Client::~Client()
         g_clear_object (&technology_proxy_);
 }
 
-void Client::set_information_element(std::unique_ptr<P2P::InformationElementArray> &take_array)
+P2P::InformationElement& Client::information_element() const
 {
-    unregister_peer_service();
-    array_ = std::move (take_array);
+    return *ie_;
+}
+
+void Client::set_information_element(P2P::InformationElement *ie)
+{
+    if (ie_)
+        unregister_peer_service();
+
+    ie_.reset(ie);
     register_peer_service();
 }
 

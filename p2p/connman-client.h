@@ -42,11 +42,12 @@ class Client {
                 virtual ~Observer() {}
         };
 
-        Client(std::unique_ptr<P2P::InformationElementArray> &take_array);
-        Client(std::unique_ptr<P2P::InformationElementArray> &take_array, Observer *observer);
+        Client(P2P::InformationElement *ie, Observer *observer = NULL);
         virtual ~Client();
 
-        void set_information_element(std::unique_ptr<P2P::InformationElementArray> &take_array);
+        P2P::InformationElement& information_element() const;
+        void set_information_element(P2P::InformationElement *ie);
+
         void set_observer(Observer* observer) {
             observer_ = observer;
         }
@@ -75,7 +76,7 @@ class Client {
         GDBusProxy *technology_proxy_;
 
         Observer* observer_;
-        std::unique_ptr<P2P::InformationElementArray>array_;
+        std::unique_ptr<P2P::InformationElement>ie_;
         std::map<std::string, std::shared_ptr<P2P::Peer>> peers_;
 };
 

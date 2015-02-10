@@ -52,8 +52,7 @@ int main (int argc, const char **argv)
     std::cout << "Registering " << ie.to_string() <<  std::endl;
 
     // register the P2P service with connman
-    auto array = ie.serialize ();
-    P2P::Client p2p_client (array);
+    P2P::Client p2p_client (&ie);
 
     g_main_loop_run (main_loop);
     g_main_loop_unref (main_loop);

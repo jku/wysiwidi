@@ -75,8 +75,7 @@ SinkApp::SinkApp(){
     std::cout << "* Registering Wifi Display with IE " << ie.to_string() <<  std::endl;
 
     // register the P2P service with connman
-    auto array = ie.serialize ();
-    p2p_client_.reset(new P2P::Client(array, this));
+    p2p_client_.reset(new P2P::Client(&ie, this));
 }
 
 SinkApp::SinkApp(const std::string& hostname, int port)
